@@ -1,10 +1,10 @@
 import rospy 
-import rospkg
+# import rospkg
 import sys 
 from math import sin, cos, pi
 from inverted_pendulum_controller.msg import ControlForce 
-from inverted_pendulum_sim.srv import SetParams
-
+from inverted_pendulum_sim.msg import CurrentState 
+from inverted_pendulum_sim.srv import SetParams, SetParamsRequest, SetParamsResponse
 
 class PendulumController:
 
@@ -14,10 +14,11 @@ class PendulumController:
         self.init_pub_subs()
 
         self.force = 0 
-        self.draw_counter = 0
+        self.timer = 0
 
         self.amplitude = 50 
         self.frequency = 2 
+        self.main_loop()
         
     def init_pub_subs(self) -> None:
         '''
@@ -55,13 +56,20 @@ class PendulumController:
     def main_loop(self):
         while not rospy.is_shutdown():
             # implement clock.tick 
-            self.force = sin()
+            self.force = self.amplitude * sin(2*pi*self.frequency*self.timer)
+            
+            force_msg = ControlForce()
+            force_msg.force = self.force 
+            self.control_force_pub.publish(force_msg)
+            
+            self.timer += 1
 
 
 
 
 if __name__ == '__main__':
-    rospy.init_node()
+    rospy.init_node('PendulumController', anonymous=True)
+    PendulumController()
     try:
         rospy.spin()
     except KeyboardInterrupt:

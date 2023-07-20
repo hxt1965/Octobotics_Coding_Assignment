@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<launch>
+    <node pkg="pendulum_controller" type="pendulum_controller_node.py" name="PendulumController" output="screen"
+          required="true"/>
+</launch>
