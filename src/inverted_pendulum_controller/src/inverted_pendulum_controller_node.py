@@ -1,7 +1,9 @@
 import rospy 
 import rospkg
 import sys 
+from math import sin, cos, pi
 from inverted_pendulum_controller.msg import ControlForce 
+from inverted_pendulum_sim.srv import SetParams
 
 
 class PendulumController:
@@ -10,6 +12,12 @@ class PendulumController:
         self.control_force_pub = None 
         self.current_state_sub = None 
         self.init_pub_subs()
+
+        self.force = 0 
+        self.draw_counter = 0
+
+        self.amplitude = 50 
+        self.frequency = 2 
         
     def init_pub_subs(self) -> None:
         '''
@@ -20,17 +28,34 @@ class PendulumController:
         self.current_state_sub = rospy.Subscriber('/inverted_pendulum/current_state', 
                                                   CurrentState,
                                                   self.current_state_callback)
-        
+        # self.set_params_srv = rospy.Service()
     
     def current_state_callback(self):
         '''
         '''
-        return 
-    
+        rospy.wait_for_service('/inverted_pendulum/set_params') 
+        try:
+            set_params = rospy.ServiceProxy('/inverted_pendulum/set_params', SetParams)
+            request = SetParamsRequest()
+            
+            request.pendulum_mass = 0
+            request.pendulum_length = 0
+            request.cart_mass = 0 
+            response = set_params(request)
+            return response 
+        except rospy.ServiceException as e:
+            rospy.logerr('Service call failed')
+
     def set_params(self):
         '''
         '''
         pass 
+    
+    ## for PID, error is theta ? 
+    def main_loop(self):
+        while not rospy.is_shutdown():
+            # implement clock.tick 
+            self.force = sin()
 
 
 
