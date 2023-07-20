@@ -1,8 +1,9 @@
 import rospy 
-import rospkg
+# import rospkg
 import sys 
 from inverted_pendulum_controller.msg import ControlForce 
-
+from inverted_pendulum_sim.msg import CurrentState 
+from inverted_pendulum_sim.srv import SetParams, SetParamsRequest, SetParamsResponse
 
 class PendulumController:
 
