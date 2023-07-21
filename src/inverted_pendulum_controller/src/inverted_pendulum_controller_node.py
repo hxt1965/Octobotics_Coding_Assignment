@@ -1,6 +1,10 @@
+# credit: https://github.com/Nikkhil16/Inverted_Pendulum/blob/master/inverted_pendulum.py
+
 import rospy 
 # import rospkg
 import sys 
+import numpy as np
+from control.matlab import * 
 from math import sin, cos, pi
 from inverted_pendulum_controller.msg import ControlForce 
 from inverted_pendulum_sim.msg import CurrentState 
@@ -9,15 +13,31 @@ from inverted_pendulum_sim.srv import SetParams, SetParamsRequest, SetParamsResp
 class PendulumController:
 
     def __init__(self) -> None:
-        self.control_force_pub = None 
-        self.current_state_sub = None 
+        self.control_force_pub = None
+        self.current_state_sub = None
         self.init_pub_subs()
 
         self.force = 0 
         self.timer = 0
 
+        self.current_theta = 0 
+        self.current_x = 0 
+        self.previous_error = pi 
+
+        # default initialization values
         self.amplitude = 50 
         self.frequency = 2 
+
+        self.pendulum_weight = 0 
+        self.cart_weight = 0 
+        self.pendulum_length = 0 
+        self.cart_position = 0 
+        self.theta = 300 
+
+        self.control_type = 'pid'
+
+        self.get_params()
+
         self.main_loop()
         
     def init_pub_subs(self) -> None:
@@ -31,10 +51,41 @@ class PendulumController:
                                                   self.current_state_callback)
         # self.set_params_srv = rospy.Service()
     
-    def current_state_callback(self):
+    def get_params(self):
+        self.amplitude = rospy.get_param('~amplitude')
+        self.amplitude = rospy.get_param('~amplitude')
+        self.amplitude = rospy.get_param('~amplitude')
+        self.amplitude = rospy.get_param('~amplitude')
+        pass 
+
+    def get_force_from_pid(self, error, previous_error, time_delta, integral ):
+        Kp = -150
+        Kd = -20
+        Ki = -20 
+
+        derivative = (error - previous_error) / time_delta 
+        integral += (error*time_delta)
+        force = (Kp*error) + (Kd*derivative) + (Ki*integral)
+        return force
+
+    def current_state_callback(self, msg):
         '''
         '''
-        rospy.wait_for_service('/inverted_pendulum/set_params') 
+
+        # get pendulum current state here 
+        self.current_theta = msg.curr_theta 
+        error = get_error(self.current_theta)
+
+        # calculate error 
+
+        pass 
+        
+        
+
+    def set_params(self):
+        '''
+        '''
+        rospy.wait_for_service('/inverted_pendulum/set_params')
         try:
             set_params = rospy.ServiceProxy('/inverted_pendulum/set_params', SetParams)
             request = SetParamsRequest()
@@ -44,26 +95,43 @@ class PendulumController:
             request.cart_mass = 0 
             response = set_params(request)
             return response 
-        except rospy.ServiceException as e:
-            rospy.logerr('Service call failed')
+        except rospy.ServiceException as err:
+            rospy.logerr(f'Service call failed: ${err}')
 
-    def set_params(self):
-        '''
-        '''
-        pass 
+    def get_error(self, theta):
+        previous_error = theta%(2*pi)
+
+        if previous_error > pi:
+            previous_error = previous_error - (2*pi)
+
+        return previous_error
     
     ## for PID, error is theta ? 
     def main_loop(self):
-        while not rospy.is_shutdown():
-            # implement clock.tick 
-            self.force = self.amplitude * sin(2*pi*self.frequency*self.timer)
-            
-            force_msg = ControlForce()
-            force_msg.force = self.force 
-            self.control_force_pub.publish(force_msg)
-            
-            self.timer += 1
+        # setup 
 
+        if self.control_type == 'pid':
+            while not rospy.is_shutdown():
+                time_now = time.time()
+                error = get_error()
+
+
+
+                previous_error = error
+                pass 
+
+        elif self.control_type == 'sin':
+            while not rospy.is_shutdown():
+                # implement clock.tick 
+                self.force = self.amplitude * sin(2*pi*self.frequency*self.timer)
+                
+                force_msg = ControlForce()
+                force_msg.force = self.force
+                self.control_force_pub.publish(force_msg)
+                
+                self.timer += 1
+        else:
+            return 
 
 
 
