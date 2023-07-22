@@ -52,11 +52,11 @@ class PendulumController:
         # self.set_params_srv = rospy.Service()
     
     def get_params(self):
-        self.amplitude = rospy.get_param('~amplitude')
-        self.amplitude = rospy.get_param('~amplitude')
-        self.amplitude = rospy.get_param('~amplitude')
-        self.amplitude = rospy.get_param('~amplitude')
-        pass 
+        self.pendulum_weight = rospy.get_param('~pendulum_weight')
+        self.pendulum_length = rospy.get_param('~pendulum_length')
+        self.cart_weight = rospy.get_param('~cart_weight')
+        self.cart_position = rospy.get_param('~cart_position')
+        self.theta = rospy.get_param('~theta')
 
     def get_force_from_pid(self, error, previous_error, time_delta, integral ):
         Kp = -150
@@ -74,7 +74,7 @@ class PendulumController:
 
         # get pendulum current state here 
         self.current_theta = msg.curr_theta 
-        error = get_error(self.current_theta)
+        error = self.get_error(self.current_theta)
 
         # calculate error 
 
@@ -110,28 +110,47 @@ class PendulumController:
     def main_loop(self):
         # setup 
 
-        if self.control_type == 'pid':
-            while not rospy.is_shutdown():
-                time_now = time.time()
-                error = get_error()
-
-
-
-                previous_error = error
-                pass 
-
-        elif self.control_type == 'sin':
-            while not rospy.is_shutdown():
-                # implement clock.tick 
+        while not rospy.is_shutdown():
+            if self.control_type == 'pid':
+                self.get_force_from_pid(0, 0, 0,0)
+            elif self.control_type == 'sin':
                 self.force = self.amplitude * sin(2*pi*self.frequency*self.timer)
+            elif self.control_type == 'na':
+                self.force = 0
+            else:
+                print('invalid control type argument')
+                break
+            
+            force_msg = ControlForce()
+            force_msg.force = self.force
+            self.control_force_pub.publish(force_msg)
+            self.timer += 1
+
+        # if self.control_type == 'pid':
+        #     while not rospy.is_shutdown():
+        #         time_now = time.time()
+        #         error = get_error()
+
+
+
+        #         previous_error = error
+        #         pass 
+
+        # elif self.control_type == 'sin':
+        #     while not rospy.is_shutdown():
+        #         # implement clock.tick 
+        #         self.force = self.amplitude * sin(2*pi*self.frequency*self.timer)
                 
-                force_msg = ControlForce()
-                force_msg.force = self.force
-                self.control_force_pub.publish(force_msg)
+        #         force_msg = ControlForce()
+        #         force_msg.force = self.force
+        #         self.control_force_pub.publish(force_msg)
                 
-                self.timer += 1
-        else:
-            return 
+        #         self.timer += 1
+        # else:
+        #     while not rospy.is_shutdown():
+        #         self.force = 0 
+
+
 
 
 
