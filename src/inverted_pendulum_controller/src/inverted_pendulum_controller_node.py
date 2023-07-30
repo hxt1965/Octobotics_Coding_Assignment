@@ -90,11 +90,13 @@ class PendulumController:
             set_params = rospy.ServiceProxy('/inverted_pendulum/set_params', SetParams)
             request = SetParamsRequest()
             
-            request.pendulum_mass = 0
-            request.pendulum_length = 0
-            request.cart_mass = 0 
+            request.pendulum_mass = self.pendulum_weight
+            request.pendulum_length = self.pendulum_length
+            request.cart_mass = self.cart_weight
+            request.cart_x_0 = self.cart_position
+            request.theta_0 = self.theta
             response = set_params(request)
-            return response 
+            return response
         except rospy.ServiceException as err:
             rospy.logerr(f'Service call failed: ${err}')
 

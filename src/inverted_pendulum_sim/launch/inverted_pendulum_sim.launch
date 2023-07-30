@@ -2,12 +2,6 @@
 <launch>
     <node pkg="inverted_pendulum_sim" type="inverted_pendulum_sim_node.py" name="InvertedPendulum" output="screen"
           required="true">
-        <param name="pendulum_length" value="300" />
-        <param name="pendulum_weight" value="2" />
-        <param name="cart_weight" value="0.5" />
-        <param name="cart_position" value="0" />
-        <param name="theta" value="300" />
-        <param name="control_type" value="none" />
     </node>
 
 </launch>

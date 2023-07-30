@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <launch>
     <node pkg="pendulum_controller" type="pendulum_controller_node.py" name="PendulumController" output="screen"
-          required="true"/>
+          required="true">
+        <param name="pendulum_length" value="300" />
+        <param name="pendulum_weight" value="2" />
+        <param name="cart_weight" value="0.5" />
+        <param name="cart_position" value="0" />
+        <param name="theta" value="300" />
+        <param name="control_type" value="none" />
+    </node>
 </launch>
